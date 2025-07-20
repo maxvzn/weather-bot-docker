@@ -3,6 +3,7 @@ import os
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 from dotenv import load_dotenv
+import bot.keyboards as kb
 
 load_dotenv()
 
@@ -10,12 +11,23 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+
 @dp.message(F.text == "/ping")
 async def ping_handler(message: Message):
     await message.answer("pong")
 
+
+@dp.message(F.text == "/start")
+async def start_handler(message: Message):
+    await message.answer(
+        "Привет! Пришли мне свою геолокацию, и я покажу погоду рядом с тобой.",
+        reply_markup=kb.get_request_location_keyboard()
+    )
+
+
 async def main():
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
