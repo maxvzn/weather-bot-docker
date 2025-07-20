@@ -5,6 +5,7 @@ from aiogram.types import Message, Location
 from dotenv import load_dotenv
 import bot.keyboards as kb
 from bot.services import fetch_weather
+from bot.emojis import ICON_EMOJI
 
 load_dotenv()
 
@@ -28,11 +29,15 @@ async def start_handler(message: Message):
 
 @dp.message(F.location)
 async def location_handler(message: Message):
-    loc: Location = message.location
-    data = await fetch_weather(loc.latitude, loc.longitude)
-    temp = data["main"]["temp"]
-    desc = data["weather"][0]["description"].capitalize()
-    await message.answer(f"{desc}, {temp}°C")
+    loc = message.location
+    w = await fetch_weather(loc.latitude, loc.longitude)
+    emoji = ICON_EMOJI.get(w["icon"], "")
+    text = (
+        f"{emoji} <b>{w['city']}</b>\n"
+        f"{w['desc']}\n"
+        f"🌡️ {w['temp']}°C (ощущается {w['feels_like']}°C)"
+    )
+    await message.answer(text, parse_mode="HTML")
 
 
 async def main():
